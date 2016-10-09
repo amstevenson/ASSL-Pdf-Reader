@@ -7,5 +7,8 @@
     <color name="colorFAB2">#4CAF50</color>
     <color name="colorDarkGreen">#2E7D32</color>
     <color name='colorNavPurple'>#53346D</color>
+    <color name="colorBlue">#2196F3</color>
+    <color name="colorBlueOneDeeper">#0d8aee</color>
+    <color name="colorBlack">#000000</color>
 
 </resources>

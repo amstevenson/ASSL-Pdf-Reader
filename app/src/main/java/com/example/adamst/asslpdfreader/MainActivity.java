@@ -81,7 +81,6 @@ public class MainActivity extends AppCompatActivity
                 // Write action for Dropbox
             }
         });
-
     }
 
     @Override
