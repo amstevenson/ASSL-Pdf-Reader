@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorFAB1">#2196F3</color>
     <color name="colorFAB2">#4CAF50</color>
+    <color name="colorDarkGreen">#2E7D32</color>
+    <color name='colorNavPurple'>#53346D</color>
+
 </resources>
