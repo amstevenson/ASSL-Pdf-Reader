@@ -7,7 +7,7 @@ package com.example.adamst.asslpdfreader.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.example.adamst.asslpdfreader.database.FeedReaderContract.FeedEntry;
+import com.example.adamst.asslpdfreader.database.FeedReaderContract.FileEntry;
 
 public class FeedReaderDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
@@ -16,26 +16,29 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
-    private static final String SQL_CREATE_ENTRIES =
-            "CREATE TABLE " + FeedEntry.TABLE_NAME + " (" +
-                    FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
-                    FeedEntry.COLUMN_NAME_SUBTITLE + TEXT_TYPE + " )";
+    private static final String SQL_CREATE_FILE_ENTRIES =
+            "CREATE TABLE " + FileEntry.TABLE_NAME + " (" +
+                    FileEntry._ID + " INTEGER PRIMARY KEY," +
+                    FileEntry.COLUMN_NAME_NAME + TEXT_TYPE + COMMA_SEP +
+                    FileEntry.COLUMN_NAME_DATE_ADDED + TEXT_TYPE + " )";
 
-    private static final String SQL_DELETE_ENTRIES =
-            "DROP TABLE IF EXISTS " + FeedEntry.TABLE_NAME;
+    private static final String SQL_DELETE_FILE_ENTRIES =
+            "DROP TABLE IF EXISTS " + FileEntry.TABLE_NAME;
 
     public FeedReaderDbHelper(Context context) {
+        // Creates the database (FeedReader.db) if there is not a file already.
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_ENTRIES);
+        db.execSQL(SQL_CREATE_FILE_ENTRIES);
     }
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // This database is only a cache for online data, so its upgrade policy is
-        // to simply to discard the data and start over
-        db.execSQL(SQL_DELETE_ENTRIES);
-        onCreate(db);
+        if(newVersion>oldVersion) {
+            // This database is only a cache for online data, so its upgrade policy is
+            // to simply to discard the data and start over
+            db.execSQL(SQL_DELETE_FILE_ENTRIES);
+            onCreate(db);
+        }
     }
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
