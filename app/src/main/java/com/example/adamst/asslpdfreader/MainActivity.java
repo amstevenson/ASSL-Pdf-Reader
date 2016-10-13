@@ -16,6 +16,10 @@ import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+//import android.content.Context;
+//import com.example.adamst.asslpdfreader.database.FeedReaderContract.FeedReaderDbHelper;
+
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity
                 // Write action for Dropbox
             }
         });
+
     }
 
     @Override
