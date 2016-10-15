@@ -17,6 +17,22 @@ import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+/*
+    TODO: T1 1) Change DB to only allow one name row per book.
+
+    TODO: T2 1) Floating button System/Nav import: implement an activity that lists all files from the device's file system.
+    TODO: T2 2) When a file is selected, check that the version is pdf or epub.
+    TODO: T2 3) If this check passes, add the values of the file to the DB.
+    TODO: T2 3) When the files DB values have been added, copy and save the file to the apps file folder.
+
+    TODO: T3 1) Floating button DropBox: When DropBox is clicked, sync up to the online service.
+    TODO: T3 2) When a file is selected, perform pdf/epub check then add the name and other values to the DB.
+    TODO: T3 3) When the file has been added, download and save it to the apps file folder.
+
+    TODO: T4 4) List all DB objects on the main activity using an adapter - look into alternatives.
+
+ */
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
