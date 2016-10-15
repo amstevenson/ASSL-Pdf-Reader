@@ -29,9 +29,13 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         // Creates the database (FeedReader.db) if there is not a file already.
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-    public void onCreate(SQLiteDatabase db) {
+
+    public void onCreate(SQLiteDatabase db)
+    {
+        // Create the database and execution creation SQL for each table.
         db.execSQL(SQL_CREATE_FILE_ENTRIES);
     }
+
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if(newVersion>oldVersion) {
             // This database is only a cache for online data, so its upgrade policy is
