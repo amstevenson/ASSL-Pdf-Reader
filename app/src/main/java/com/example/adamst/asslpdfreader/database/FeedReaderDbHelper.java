@@ -15,8 +15,8 @@ import com.example.adamst.asslpdfreader.database.FeedReaderContract.FileEntry;
 
 public class FeedReaderDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "FeedReader.db";
+    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "FeedReader.db";
 
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
@@ -52,18 +52,20 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public void add_table_row(SQLiteDatabase db, ContentValues values, String tableName) throws Exception{
+    public void addTableRow(SQLiteDatabase db, ContentValues values, String tableName) throws Exception{
 
-        // Insert the new row TODO: the primary key value of the new row
+        // Insert the new row TODO: return the primary key value of the new row
         db.insert(tableName, null, values);
     }
 
-    public ContentValues get_table_rows(SQLiteDatabase db, String[] selectedColumns, String whereColumnName, String whereColumnValue, String tableName) throws Exception {
+    public ContentValues getTableRows(SQLiteDatabase db, String[] selectedColumns, String whereColumnName, String whereColumnValue, String tableName) throws Exception {
 
+        // TODO: change parameters to allow for multiple where conditions
         // Filter results; selected tables have already been sent.
         String selection = whereColumnName + " = ?";
         String[] selectionArgs = { whereColumnValue };
 
+        // TODO: create an optional Cursor that incorporates sort orders
         // How you want the results sorted in the resulting Cursor
         // String sortOrder =
         //        FeedEntry.COLUMN_NAME_SUBTITLE + " DESC";
@@ -81,30 +83,38 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         // Get the return values
         ContentValues returnValues = new ContentValues();
 
+        // TODO: change moveToFirst in order to retrieve each returned row
         if( c != null && c.moveToFirst() ) {
 
             if(selectedColumns.length >= 1) {
-                for (int i = 0; i < selectedColumns.length; i++) {
-                    returnValues.put(selectedColumns[i], c.getString(c.getColumnIndex(selectedColumns[i])));
+
+                // For each column requested, get that value from the cursor for each row.
+                // TODO: at the moment only one row is returned, create an array hashmap for returning more than one row.
+                int i = 0;
+                for(String value: selectedColumns)
+                {
+                    returnValues.put(value, c.getString(c.getColumnIndex(selectedColumns[i])));
+                    i++;
                 }
+
                 c.close();
                 return returnValues;
             }
             else {
                 Log.d("get_database_values", "No projection tags found.");
-                returnValues.put("error", "Column projection error in get_table_values");
+                returnValues.put("error", "Column projection error in get_table_rows");
                 c.close();
                 return returnValues;
             }
         }
         else {
-            Log.d("get_database_values", "Test: get_database_values failed to retrieve cursor value.");
+            Log.d("get_database_values", "Test: get_database_rows failed to retrieve cursor value.");
             returnValues.put("error", "Failed to retrieve cursor value.");
             return returnValues;
         }
     }
 
-    public Boolean update_table_row(SQLiteDatabase db, String columnName, String oldValue, String newValue, String tableName) throws Exception{
+    public Boolean updateTableRow(SQLiteDatabase db, String columnName, String oldValue, String newValue, String tableName) throws Exception{
 
         // New value for one column
         ContentValues values = new ContentValues();
@@ -120,15 +130,11 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 selection,
                 selectionArgs);
 
-        if (count == 0 || count == -1)
-            return false;
-        else
-            return true;
+        return count != 0;
     }
 
-    public void remove_table_row(SQLiteDatabase db, String columnName, String columnValue, String tableName) throws Exception{
+    public void removeTableRow(SQLiteDatabase db, String columnName, String columnValue, String tableName) throws Exception{
 
-        // Remove the test database
         // Define 'where' part of query.
         String selection = columnName + " LIKE ?";
 

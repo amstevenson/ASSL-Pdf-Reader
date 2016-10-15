@@ -31,7 +31,7 @@ public class ExampleInstrumentedTest {
     }
 
     @Test
-    public void test_db_file_table() throws Exception {
+    public void testDbFileTable() throws Exception {
 
         // Create a test database
         Context appContext = InstrumentationRegistry.getTargetContext();
@@ -44,13 +44,13 @@ public class ExampleInstrumentedTest {
         values.put(FileEntry.COLUMN_NAME_NAME, "nameOne");
         values.put(FileEntry.COLUMN_NAME_DATE_ADDED, "dateOne");
 
-        feedReaderDbHelper.add_table_row(db, values, FileEntry.TABLE_NAME);
+        feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
 
         values = new ContentValues();
         values.put(FileEntry.COLUMN_NAME_NAME, "nameTwo");
         values.put(FileEntry.COLUMN_NAME_DATE_ADDED, "dateTwo");
 
-        feedReaderDbHelper.add_table_row(db, values, FileEntry.TABLE_NAME);
+        feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
 
         // Retrieve values
         String nameOne, nameTwo;
@@ -64,14 +64,14 @@ public class ExampleInstrumentedTest {
                 FileEntry.COLUMN_NAME_DATE_ADDED
         };
 
-        ContentValues testValuesOne = feedReaderDbHelper.get_table_rows(
+        ContentValues testValuesOne = feedReaderDbHelper.getTableRows(
                 db,
                 selectedColumns,
                 FileEntry.COLUMN_NAME_NAME,
                 "nameOne",
                 FileEntry.TABLE_NAME);
 
-        ContentValues testValuesTwo = feedReaderDbHelper.get_table_rows(
+        ContentValues testValuesTwo = feedReaderDbHelper.getTableRows(
                 db,
                 selectedColumns,
                 FileEntry.COLUMN_NAME_NAME,
@@ -92,12 +92,12 @@ public class ExampleInstrumentedTest {
         newNameOne = "new value one";
         newNameTwo = "new value two";
 
-        assertEquals(true, feedReaderDbHelper.update_table_row(
+        assertEquals(true, feedReaderDbHelper.updateTableRow(
                 db,
                 FileEntry.COLUMN_NAME_NAME,
                 nameOne, newNameOne,
                 FileEntry.TABLE_NAME));
-        assertEquals(true, feedReaderDbHelper.update_table_row(
+        assertEquals(true, feedReaderDbHelper.updateTableRow(
                 db,
                 FileEntry.COLUMN_NAME_NAME,
                 nameTwo,
@@ -105,14 +105,14 @@ public class ExampleInstrumentedTest {
                 FileEntry.TABLE_NAME));
 
         // Get the returned updated values
-        testValuesOne = feedReaderDbHelper.get_table_rows(
+        testValuesOne = feedReaderDbHelper.getTableRows(
                 db,
                 selectedColumns,
                 FileEntry.COLUMN_NAME_NAME,
                 "new value one",
                 FileEntry.TABLE_NAME);
 
-        testValuesTwo = feedReaderDbHelper.get_table_rows(
+        testValuesTwo = feedReaderDbHelper.getTableRows(
                 db,
                 selectedColumns,
                 FileEntry.COLUMN_NAME_NAME,
@@ -129,7 +129,7 @@ public class ExampleInstrumentedTest {
         assertNotEquals(changedNameOne, "");
 
         // Remove the values in the table
-        feedReaderDbHelper.remove_table_row(db, FileEntry.COLUMN_NAME_NAME, newNameOne, FileEntry.TABLE_NAME);
-        feedReaderDbHelper.remove_table_row(db, FileEntry.COLUMN_NAME_NAME, newNameTwo, FileEntry.TABLE_NAME);
+        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_NAME_NAME, newNameOne, FileEntry.TABLE_NAME);
+        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_NAME_NAME, newNameTwo, FileEntry.TABLE_NAME);
     }
 }
