@@ -13,6 +13,8 @@ import android.util.Log;
 
 import com.example.adamst.asslpdfreader.database.FeedReaderContract.FileEntry;
 
+import java.util.ArrayList;
+
 public class FeedReaderDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
     private static final int DATABASE_VERSION = 1;
@@ -52,23 +54,39 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public void addTableRow(SQLiteDatabase db, ContentValues values, String tableName) throws Exception{
+    public long addTableRow(SQLiteDatabase db, ContentValues values, String tableName) throws Exception{
 
-        // Insert the new row TODO: return the primary key value of the new row
-        db.insert(tableName, null, values);
+        // Insert the new row; returns the new ID as a long value.
+        return(db.insert(tableName, null, values));
     }
 
-    public ContentValues getTableRows(SQLiteDatabase db, String[] selectedColumns, String whereColumnName, String whereColumnValue, String tableName) throws Exception {
+    public ArrayList<ContentValues> getTableRows(SQLiteDatabase db, String[] selectedColumns,
+                                      ContentValues whereValues, String tableName, String sortBy) throws Exception {
 
-        // TODO: change parameters to allow for multiple where conditions
-        // Filter results; selected tables have already been sent.
-        String selection = whereColumnName + " = ?";
-        String[] selectionArgs = { whereColumnValue };
+        // Create the selection statement; the columns for the where clause.
+        // Also create the values for those where clauses.
+        String selection = "";
+        String[] selectionArgs = new String[whereValues.size()];
+        int i = 0;
+        if(whereValues.size() > 0) {
+            for (String whereKey : whereValues.keySet()) {
+                if (i == 0) {
+                    selection += whereKey + " = ? ";
+                } else {
+                    selection += "AND " + whereKey + " = ? ";
+                }
 
-        // TODO: create an optional Cursor that incorporates sort orders
+                selectionArgs[i] = whereValues.get(whereKey).toString();
+
+                i++;
+            }
+        }
+        else
+            selection = null;
+
         // How you want the results sorted in the resulting Cursor
-        // String sortOrder =
-        //        FeedEntry.COLUMN_NAME_SUBTITLE + " DESC";
+        if(sortBy != null)
+            sortBy += " DESC";
 
         Cursor c = db.query(
                 tableName,                                // The table to query
@@ -77,39 +95,68 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 selectionArgs,                            // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
-                null                                      // The sort order
+                sortBy                                    // The sort order
         );
 
-        // Get the return values
-        ContentValues returnValues = new ContentValues();
+        // Get the return values for all rows retrieved from the above query.
+        // All of these are contained within the above Cursor.
+        ArrayList<ContentValues> returnValues = new ArrayList<>();
 
-        // TODO: change moveToFirst in order to retrieve each returned row
         if( c != null && c.moveToFirst() ) {
 
             if(selectedColumns.length >= 1) {
 
-                // For each column requested, get that value from the cursor for each row.
-                // TODO: at the moment only one row is returned, create an array hashmap for returning more than one row.
-                int i = 0;
-                for(String value: selectedColumns)
-                {
-                    returnValues.put(value, c.getString(c.getColumnIndex(selectedColumns[i])));
-                    i++;
+                for(int j = 0; j < c.getCount(); j++){
+
+                    // Add the values for each row to the ArrayList of ContentValues
+                    // For each column requested, get that value from the cursor for each row.
+                    int k = 0;
+                    ContentValues returnHash = new ContentValues();
+
+                    for(String value: selectedColumns)
+                    {
+                        returnHash.put(value, c.getString(c.getColumnIndex(selectedColumns[k])));
+                        k++;
+                    }
+
+                    Log.d("-----", "---------------------------------------------");
+
+                    Log.d("CV cursor hash", returnHash.toString());
+
+                    Log.d("-----", "---------------------------------------------");
+
+                    // Add the HashMap to the ArrayList and move to the next row in the cursor
+                    returnValues.add(returnHash);
+                    c.moveToNext();
                 }
 
+                Log.d("-----", "---------------------------------------------");
+
+                Log.d("CV Array Hash", String.valueOf(returnValues.size()));
+
+                Log.d("-----", "---------------------------------------------");
+
+
+                // Close the cursor and return the rows.
                 c.close();
                 return returnValues;
             }
             else {
-                Log.d("get_database_values", "No projection tags found.");
-                returnValues.put("error", "Column projection error in get_table_rows");
+                // Create and return an error HashMap
+                ContentValues returnHash = new ContentValues();
+                returnHash.put("error", "Column projection error in get_table_rows");
+                returnValues.add(returnHash);
                 c.close();
+                Log.d("get_database_values", "No projection tags found.");
                 return returnValues;
             }
         }
         else {
+            // Create and return an error HashMap
+            ContentValues returnHash = new ContentValues();
+            returnHash.put("error", "Failed to retrieve cursor value.");
+            returnValues.add(returnHash);
             Log.d("get_database_values", "Test: get_database_rows failed to retrieve cursor value.");
-            returnValues.put("error", "Failed to retrieve cursor value.");
             return returnValues;
         }
     }
