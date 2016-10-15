@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class FeedReaderDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "FeedReader.db";
 
     private static final String TEXT_TYPE = " TEXT";
@@ -25,7 +25,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_FILE_ENTRIES =
             "CREATE TABLE " + FileEntry.TABLE_NAME + " (" +
                     FileEntry._ID + " INTEGER PRIMARY KEY," +
-                    FileEntry.COLUMN_NAME_NAME + TEXT_TYPE + COMMA_SEP +
+                    FileEntry.COLUMN_BOOK_NAME + TEXT_TYPE + COMMA_SEP +
                     FileEntry.COLUMN_NAME_DATE_ADDED + TEXT_TYPE + " )";
 
     private static final String SQL_DELETE_FILE_ENTRIES =
