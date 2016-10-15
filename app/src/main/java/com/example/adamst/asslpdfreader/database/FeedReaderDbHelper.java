@@ -119,23 +119,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                         k++;
                     }
 
-                    Log.d("-----", "---------------------------------------------");
-
-                    Log.d("CV cursor hash", returnHash.toString());
-
-                    Log.d("-----", "---------------------------------------------");
-
                     // Add the HashMap to the ArrayList and move to the next row in the cursor
                     returnValues.add(returnHash);
                     c.moveToNext();
                 }
-
-                Log.d("-----", "---------------------------------------------");
-
-                Log.d("CV Array Hash", String.valueOf(returnValues.size()));
-
-                Log.d("-----", "---------------------------------------------");
-
 
                 // Close the cursor and return the rows.
                 c.close();

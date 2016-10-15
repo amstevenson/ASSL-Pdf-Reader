@@ -155,10 +155,6 @@ public class ExampleInstrumentedTest {
     @Test
     public void testDBMultipleGet() throws Exception{
 
-        Log.d("-----", "---------------------------------------------");
-        Log.d("Calling test", "Test DB Multiple Get");
-        Log.d("-----", "---------------------------------------------");
-
         // Create a test database
         Context appContext = InstrumentationRegistry.getTargetContext();
         FeedReaderDbHelper feedReaderDbHelper = new FeedReaderDbHelper(appContext);
@@ -167,19 +163,17 @@ public class ExampleInstrumentedTest {
         // Add some test values
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        values.put(FileEntry.COLUMN_NAME_NAME, "nameOne");
-        values.put(FileEntry.COLUMN_NAME_DATE_ADDED, "dateOne");
+        values.put(FileEntry.COLUMN_NAME_NAME, "replicated value");
+        values.put(FileEntry.COLUMN_NAME_DATE_ADDED, "replicated date");
 
+        // Add four values
         feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
-
-        values = new ContentValues();
-        values.put(FileEntry.COLUMN_NAME_NAME, "nameOne");
-        values.put(FileEntry.COLUMN_NAME_DATE_ADDED, "dateTwo");
-
+        feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
+        feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
         feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
 
         // Retrieve values
-        String nameOne;
+        String nameOne, nameTwo, dateThree, dateFour;
 
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
@@ -192,22 +186,32 @@ public class ExampleInstrumentedTest {
 
         // Define the "where" keys and values for the SQL query.
         ContentValues whereValues = new ContentValues();
-        whereValues.put(FileEntry.COLUMN_NAME_NAME, "nameOne");
-        whereValues.put(FileEntry.COLUMN_NAME_DATE_ADDED, "dateOne");
+        whereValues.put(FileEntry.COLUMN_NAME_NAME, "replicated value");
+        whereValues.put(FileEntry.COLUMN_NAME_DATE_ADDED, "replicated date");
 
-        ArrayList<ContentValues> testValuesOne = feedReaderDbHelper.getTableRows(
+        ArrayList<ContentValues> multipleRowValues = feedReaderDbHelper.getTableRows(
                 db,
                 selectedColumns,
                 whereValues,
                 FileEntry.TABLE_NAME,
                 null);
+        
+        // Check to see how many rows returned.
+        assertEquals(multipleRowValues.size(), 4);
 
+        // Get one value from each returned row; should be four.
+        nameOne   = multipleRowValues.get(0).getAsString(FileEntry.COLUMN_NAME_NAME);
+        nameTwo   = multipleRowValues.get(1).getAsString(FileEntry.COLUMN_NAME_NAME);
+        dateThree = multipleRowValues.get(2).getAsString(FileEntry.COLUMN_NAME_DATE_ADDED);
+        dateFour  = multipleRowValues.get(3).getAsString(FileEntry.COLUMN_NAME_DATE_ADDED);
 
-        nameOne = testValuesOne.get(0).getAsString(FileEntry.COLUMN_NAME_NAME);
+        // Check each value matches what is expected for each row.
+        assertEquals(nameOne, "replicated value");
+        assertEquals(nameTwo, "replicated value");
+        assertEquals(dateThree, "replicated date");
+        assertEquals(dateFour, "replicated date");
 
-        assertEquals(nameOne, "nameOne");
-
-        // Remove the value from the table
+        // Remove the values from the table
         feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_NAME_NAME, nameOne, FileEntry.TABLE_NAME);
     }
 }
