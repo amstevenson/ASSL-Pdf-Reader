@@ -7,10 +7,12 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import java.lang.Long;
+
 import com.example.adamst.asslpdfreader.database.FeedReaderDbHelper;
 import com.example.adamst.asslpdfreader.database.FeedReaderContract.FileEntry;
 
-
+import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -24,7 +26,7 @@ import static org.junit.Assert.*;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
-public class ExampleInstrumentedTest {
+public class InstrumentedTest {
     @Test
     public void useAppContext() throws Exception {
         // Context of the app under test.
@@ -44,13 +46,13 @@ public class ExampleInstrumentedTest {
         // Add some test values
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        values.put(FileEntry.COLUMN_BOOK_NAME, "nameOne");
+        values.put(FileEntry.COLUMN_NAME_BOOK_NAME, "nameOne");
         values.put(FileEntry.COLUMN_NAME_DATE_ADDED, "dateOne");
 
         feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
 
         values = new ContentValues();
-        values.put(FileEntry.COLUMN_BOOK_NAME, "nameTwo");
+        values.put(FileEntry.COLUMN_NAME_BOOK_NAME, "nameTwo");
         values.put(FileEntry.COLUMN_NAME_DATE_ADDED, "dateTwo");
 
         feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
@@ -63,13 +65,13 @@ public class ExampleInstrumentedTest {
         String[] selectedColumns = {
 
                 FileEntry._ID,
-                FileEntry.COLUMN_BOOK_NAME,
+                FileEntry.COLUMN_NAME_BOOK_NAME,
                 FileEntry.COLUMN_NAME_DATE_ADDED
         };
 
         // Define the "where" keys and values for the SQL query.
         ContentValues whereValues = new ContentValues();
-        whereValues.put(FileEntry.COLUMN_BOOK_NAME, "nameOne");
+        whereValues.put(FileEntry.COLUMN_NAME_BOOK_NAME, "nameOne");
         whereValues.put(FileEntry.COLUMN_NAME_DATE_ADDED, "dateOne");
 
         ArrayList<ContentValues> testValuesOne = feedReaderDbHelper.getTableRows(
@@ -81,7 +83,7 @@ public class ExampleInstrumentedTest {
 
         // Where keys for the second get query.
         whereValues = new ContentValues();
-        whereValues.put(FileEntry.COLUMN_BOOK_NAME, "nameTwo");
+        whereValues.put(FileEntry.COLUMN_NAME_BOOK_NAME, "nameTwo");
         whereValues.put(FileEntry.COLUMN_NAME_DATE_ADDED, "dateTwo");
 
         ArrayList<ContentValues> testValuesTwo = feedReaderDbHelper.getTableRows(
@@ -89,10 +91,10 @@ public class ExampleInstrumentedTest {
                 selectedColumns,
                 whereValues,
                 FileEntry.TABLE_NAME,
-                FileEntry.COLUMN_BOOK_NAME);
+                FileEntry.COLUMN_NAME_BOOK_NAME);
 
-        nameOne = testValuesOne.get(0).getAsString(FileEntry.COLUMN_BOOK_NAME);
-        nameTwo = testValuesTwo.get(0).getAsString(FileEntry.COLUMN_BOOK_NAME);
+        nameOne = testValuesOne.get(0).getAsString(FileEntry.COLUMN_NAME_BOOK_NAME);
+        nameTwo = testValuesTwo.get(0).getAsString(FileEntry.COLUMN_NAME_BOOK_NAME);
 
         // Assert that the values equal what they should be in the database
         assertEquals(nameOne, "nameOne");
@@ -107,19 +109,19 @@ public class ExampleInstrumentedTest {
 
         assertEquals(true, feedReaderDbHelper.updateTableRow(
                 db,
-                FileEntry.COLUMN_BOOK_NAME,
+                FileEntry.COLUMN_NAME_BOOK_NAME,
                 nameOne, newNameOne,
                 FileEntry.TABLE_NAME));
         assertEquals(true, feedReaderDbHelper.updateTableRow(
                 db,
-                FileEntry.COLUMN_BOOK_NAME,
+                FileEntry.COLUMN_NAME_BOOK_NAME,
                 nameTwo,
                 newNameTwo,
                 FileEntry.TABLE_NAME));
 
         // Get the returned updated values
         whereValues = new ContentValues();
-        whereValues.put(FileEntry.COLUMN_BOOK_NAME, "new value one");
+        whereValues.put(FileEntry.COLUMN_NAME_BOOK_NAME, "new value one");
 
         testValuesOne = feedReaderDbHelper.getTableRows(
                 db,
@@ -129,17 +131,17 @@ public class ExampleInstrumentedTest {
                 null);
 
         whereValues = new ContentValues();
-        whereValues.put(FileEntry.COLUMN_BOOK_NAME, "new value two");
+        whereValues.put(FileEntry.COLUMN_NAME_BOOK_NAME, "new value two");
 
         testValuesTwo = feedReaderDbHelper.getTableRows(
                 db,
                 selectedColumns,
                 whereValues,
                 FileEntry.TABLE_NAME,
-                FileEntry.COLUMN_BOOK_NAME);
+                FileEntry.COLUMN_NAME_BOOK_NAME);
 
-        String changedNameOne = testValuesOne.get(0).getAsString(FileEntry.COLUMN_BOOK_NAME);
-        String changedNameTwo = testValuesTwo.get(0).getAsString(FileEntry.COLUMN_BOOK_NAME);
+        String changedNameOne = testValuesOne.get(0).getAsString(FileEntry.COLUMN_NAME_BOOK_NAME);
+        String changedNameTwo = testValuesTwo.get(0).getAsString(FileEntry.COLUMN_NAME_BOOK_NAME);
 
         // Assert that the changes have taken place
         assertEquals(changedNameOne, "new value one");
@@ -148,8 +150,8 @@ public class ExampleInstrumentedTest {
         assertNotEquals(changedNameOne, "");
 
         // Remove the values in the table
-        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_BOOK_NAME, newNameOne, FileEntry.TABLE_NAME);
-        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_BOOK_NAME, newNameTwo, FileEntry.TABLE_NAME);
+        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_NAME_BOOK_NAME, newNameOne, FileEntry.TABLE_NAME);
+        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_NAME_BOOK_NAME, newNameTwo, FileEntry.TABLE_NAME);
     }
 
     @Test
@@ -162,15 +164,28 @@ public class ExampleInstrumentedTest {
 
         // Add some test values
         // Create a new map of values, where column names are the keys
+        // Note to self, there can only be one name per book at the moment.
         ContentValues values = new ContentValues();
-        values.put(FileEntry.COLUMN_BOOK_NAME, "replicated value");
+        values.put(FileEntry.COLUMN_NAME_BOOK_NAME, "replicated value");
         values.put(FileEntry.COLUMN_NAME_DATE_ADDED, "replicated date");
 
+        ContentValues values2 = new ContentValues();
+        values2.put(FileEntry.COLUMN_NAME_BOOK_NAME, "replicated value two");
+        values2.put(FileEntry.COLUMN_NAME_DATE_ADDED, "replicated date");
+
+        ContentValues values3 = new ContentValues();
+        values3.put(FileEntry.COLUMN_NAME_BOOK_NAME, "replicated value three");
+        values3.put(FileEntry.COLUMN_NAME_DATE_ADDED, "replicated date");
+
+        ContentValues values4 = new ContentValues();
+        values4.put(FileEntry.COLUMN_NAME_BOOK_NAME, "replicated value four");
+        values4.put(FileEntry.COLUMN_NAME_DATE_ADDED, "replicated date");
+
         // Add four values
-        feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
-        feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
-        feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
-        feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
+        feedReaderDbHelper.addTableRow(db, values,  FileEntry.TABLE_NAME);
+        feedReaderDbHelper.addTableRow(db, values2, FileEntry.TABLE_NAME);
+        feedReaderDbHelper.addTableRow(db, values3, FileEntry.TABLE_NAME);
+        feedReaderDbHelper.addTableRow(db, values4, FileEntry.TABLE_NAME);
 
         // Retrieve values
         String nameOne, nameTwo, dateThree, dateFour;
@@ -180,13 +195,12 @@ public class ExampleInstrumentedTest {
         String[] selectedColumns = {
 
                 FileEntry._ID,
-                FileEntry.COLUMN_BOOK_NAME,
+                FileEntry.COLUMN_NAME_BOOK_NAME,
                 FileEntry.COLUMN_NAME_DATE_ADDED
         };
 
         // Define the "where" keys and values for the SQL query.
         ContentValues whereValues = new ContentValues();
-        whereValues.put(FileEntry.COLUMN_BOOK_NAME, "replicated value");
         whereValues.put(FileEntry.COLUMN_NAME_DATE_ADDED, "replicated date");
 
         ArrayList<ContentValues> multipleRowValues = feedReaderDbHelper.getTableRows(
@@ -196,22 +210,58 @@ public class ExampleInstrumentedTest {
                 FileEntry.TABLE_NAME,
                 null);
 
+        Log.d("testDBMultGet", String.valueOf(multipleRowValues.size()));
+
         // Check to see how many rows returned.
         assertEquals(multipleRowValues.size(), 4);
 
         // Get one value from each returned row; should be four.
-        nameOne   = multipleRowValues.get(0).getAsString(FileEntry.COLUMN_BOOK_NAME);
-        nameTwo   = multipleRowValues.get(1).getAsString(FileEntry.COLUMN_BOOK_NAME);
+        nameOne   = multipleRowValues.get(0).getAsString(FileEntry.COLUMN_NAME_BOOK_NAME);
+        nameTwo   = multipleRowValues.get(1).getAsString(FileEntry.COLUMN_NAME_BOOK_NAME);
         dateThree = multipleRowValues.get(2).getAsString(FileEntry.COLUMN_NAME_DATE_ADDED);
         dateFour  = multipleRowValues.get(3).getAsString(FileEntry.COLUMN_NAME_DATE_ADDED);
 
         // Check each value matches what is expected for each row.
         assertEquals(nameOne, "replicated value");
-        assertEquals(nameTwo, "replicated value");
+        assertEquals(nameTwo, "replicated value two");
         assertEquals(dateThree, "replicated date");
         assertEquals(dateFour, "replicated date");
 
         // Remove the values from the table
-        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_BOOK_NAME, nameOne, FileEntry.TABLE_NAME);
+        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_NAME_DATE_ADDED, "replicated date", FileEntry.TABLE_NAME);
+    }
+
+    @Test
+    public void testDBOnlyOneValueForName() throws Exception{
+
+        // Create a test database
+        Context appContext = InstrumentationRegistry.getTargetContext();
+        FeedReaderDbHelper feedReaderDbHelper = new FeedReaderDbHelper(appContext);
+        SQLiteDatabase db = feedReaderDbHelper.getWritableDatabase();
+
+        // Add some test values
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(FileEntry.COLUMN_NAME_BOOK_NAME, "same name");
+        values.put(FileEntry.COLUMN_NAME_DATE_ADDED, "same name date");
+
+        // Check the row does not exist
+        Boolean rowAlreadyExistsFalse = feedReaderDbHelper.checkRowExists(db, values, FileEntry.TABLE_NAME);
+
+        // Add a new test row
+        if(!rowAlreadyExistsFalse) feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);          // Valid row
+
+        // Check that the new test row does not exist
+        Boolean rowAlreadyExistsTrue = feedReaderDbHelper.checkRowExists(db, values, FileEntry.TABLE_NAME);   // Invalid row
+
+        Log.d("testDBOnly false", rowAlreadyExistsFalse.toString());
+        Log.d("testDBOnly true", rowAlreadyExistsTrue.toString());
+
+        // Assert both of the above cases
+        assertEquals(rowAlreadyExistsFalse, false);
+        assertEquals(rowAlreadyExistsTrue, true);
+
+        // Remove the added table row.
+        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_NAME_BOOK_NAME, "same name", FileEntry.TABLE_NAME);
     }
 }
