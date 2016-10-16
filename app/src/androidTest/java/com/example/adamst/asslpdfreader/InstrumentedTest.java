@@ -5,14 +5,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
-
-import java.lang.Long;
 
 import com.example.adamst.asslpdfreader.database.FeedReaderDbHelper;
 import com.example.adamst.asslpdfreader.database.FeedReaderContract.FileEntry;
 
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -155,7 +151,7 @@ public class InstrumentedTest {
     }
 
     @Test
-    public void testDBMultipleGet() throws Exception{
+    public void testDbMultipleGet() throws Exception{
 
         // Create a test database
         Context appContext = InstrumentationRegistry.getTargetContext();
@@ -210,8 +206,6 @@ public class InstrumentedTest {
                 FileEntry.TABLE_NAME,
                 null);
 
-        Log.d("testDBMultGet", String.valueOf(multipleRowValues.size()));
-
         // Check to see how many rows returned.
         assertEquals(multipleRowValues.size(), 4);
 
@@ -232,7 +226,7 @@ public class InstrumentedTest {
     }
 
     @Test
-    public void testDBOnlyOneValueForName() throws Exception{
+    public void testDbOnlyOneValueForName() throws Exception{
 
         // Create a test database
         Context appContext = InstrumentationRegistry.getTargetContext();
@@ -254,14 +248,69 @@ public class InstrumentedTest {
         // Check that the new test row does not exist
         Boolean rowAlreadyExistsTrue = feedReaderDbHelper.checkRowExists(db, values, FileEntry.TABLE_NAME);   // Invalid row
 
-        Log.d("testDBOnly false", rowAlreadyExistsFalse.toString());
-        Log.d("testDBOnly true", rowAlreadyExistsTrue.toString());
-
         // Assert both of the above cases
         assertEquals(rowAlreadyExistsFalse, false);
         assertEquals(rowAlreadyExistsTrue, true);
 
         // Remove the added table row.
         feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_NAME_BOOK_NAME, "same name", FileEntry.TABLE_NAME);
+    }
+
+    @Test
+    public void testDbAutoRenameFile() throws Exception {
+
+        // Create a test database
+        Context appContext = InstrumentationRegistry.getTargetContext();
+        FeedReaderDbHelper feedReaderDbHelper = new FeedReaderDbHelper(appContext);
+        SQLiteDatabase db = feedReaderDbHelper.getWritableDatabase();
+
+        // Add some test values
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(FileEntry.COLUMN_NAME_BOOK_NAME, "duplicated name");
+
+        // Check the row does not exist
+        Boolean rowAlreadyExistsFalse = feedReaderDbHelper.checkRowExists(db, values, FileEntry.TABLE_NAME);
+
+        // Add a new test row
+        if(!rowAlreadyExistsFalse) feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);          // Valid row
+
+        // Check that the new test row does not exist
+        Boolean rowAlreadyExistsTrue = feedReaderDbHelper.checkRowExists(db, values, FileEntry.TABLE_NAME);   // Invalid row
+
+        // Assert both of the above cases
+        assertEquals(rowAlreadyExistsFalse, false);
+        assertEquals(rowAlreadyExistsTrue, true);
+
+        // Now that we know the row already exists in the table, we will run the db methods that will rename
+        // the value in order to append a number to the end, to mimic the behaviour of copy/pasted files in
+        // pretty much all OS's.
+        String oldValue = values.get(FileEntry.COLUMN_NAME_BOOK_NAME).toString();
+        String newValue = feedReaderDbHelper.getUniqueRowValue(db, values, FileEntry.TABLE_NAME);
+
+        // Old value would be "duplicated name" and the new value would be "duplicated name (1)"
+        assertEquals(oldValue, "duplicated name");
+        assertEquals(newValue, "duplicated name (1)");
+
+        // Add that specific row to the database, then check that the rename works again.
+        values = new ContentValues();
+        values.put(FileEntry.COLUMN_NAME_BOOK_NAME, newValue);
+
+        feedReaderDbHelper.addTableRow(db, values, FileEntry.TABLE_NAME);
+
+        // Create a new values object that contains the old value, so that we can check
+        // that it is (2) instead of (1)
+        values = new ContentValues();
+        values.put(FileEntry.COLUMN_NAME_BOOK_NAME, oldValue);
+
+        // Old value would be "duplicated name" and the new value would be "duplicated name (2)"
+        newValue = feedReaderDbHelper.getUniqueRowValue(db, values, FileEntry.TABLE_NAME);
+        assertEquals(oldValue, "duplicated name");
+        assertEquals(newValue, "duplicated name (2)");
+
+        // Remove the added table rows.
+        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_NAME_BOOK_NAME, "duplicated name", FileEntry.TABLE_NAME);
+        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_NAME_BOOK_NAME, "duplicated name (1)", FileEntry.TABLE_NAME);
+        feedReaderDbHelper.removeTableRow(db, FileEntry.COLUMN_NAME_BOOK_NAME, "duplicated name (2)", FileEntry.TABLE_NAME);
     }
 }

@@ -59,24 +59,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    /**
-     *
-     * Add a table row to the database.
-     * For the file table, A row will only be added if the name does not exist in the database.
-     * Null will be returned if a row with a name already exists. It is worth noting that the reason
-     * for the Long return type is to allow null to be returned.
-     * TODO: In the future change this to append a number to the end of the name, and assign that as the file.
-     *
-     * @param db The db helper object
-     * @param values The values for the new row
-     * @param tableName The name of the table
-     * @return The ID of the newly added row, or null if no row has been added.
-     * @throws Exception
-     */
     public Long addTableRow(SQLiteDatabase db, ContentValues values, String tableName) throws Exception {
 
         // Insert the new row; returns the new ID as a long value.
-        return (db.insert(tableName, null, values));
+        return db.insert(tableName, null, values);
     }
 
     public boolean checkRowExists(SQLiteDatabase db, ContentValues values, String tableName) throws Exception{
@@ -94,7 +80,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             }
         }
 
-        // Retrieve a row may or may not exist
+        // Retrieve a row that may or may not exist
         ArrayList<ContentValues> multipleRowValues = getTableRows(
                 db,
                 selectedColumns,
@@ -105,6 +91,93 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         int resultCount = multipleRowValues.size();
 
         return resultCount != 0;
+    }
+
+    /**
+     *
+     * Returns a new String that has a number appended to the end of it, in order for it to be
+     * deemed and used as a unique row value.
+     *
+     * @param db The database object.
+     * @param values The value for the database Row; tag and value. Only pass in ONE value, else
+     *               a null value will be returned.
+     * @param tableName The name of the database table.
+     * @return A String that is a unique value for a specific row in the database.
+     * @throws Exception
+     */
+    public String getUniqueRowValue(SQLiteDatabase db, ContentValues values, String tableName) throws Exception{
+
+        // Check the size of the values object. If it is more than 1 or is 0, return the string as a
+        //  null value/error
+        // This is because my current project is only allowing for one renamed value.
+        if(values.size() != 1 )
+            return null;
+
+        // Convert the old value provided into a new appended version.
+        // This while loop will keep going until a version of the value is found where
+        // there is a unique number identifier for it.
+        // E.g "name" would be "name (1)"
+        // Or if "name (1)" exists, then it would try "name (2)" and so on.
+        int newValueNumber = 1;
+        String newTagValue = "";
+
+        while(checkRowExists(db, values, tableName))
+        {
+            String tagName = "";
+            String tagValue = "";
+
+            // Rename the value, appending a number to the end.
+            for (String whereKey : values.keySet()) {
+
+                tagName = whereKey;
+                tagValue = values.get(tagName).toString();
+            }
+
+            newTagValue = getAppendedNumberedValue(tagValue, newValueNumber);
+
+            // Recreate the values ContentValues object and put in the new String
+            values = new ContentValues();
+            values.put(tagName, newTagValue);
+
+            newValueNumber++;
+
+            // If we go above 9, assume it has failed.
+            if(newValueNumber > 9)
+                break;
+        }
+
+        // Return the new unique String value
+        return newTagValue;
+    }
+
+    private String getAppendedNumberedValue(String oldValue, int newValueNumber) {
+
+        String newValue;
+
+        // Check that the string is not null
+        if (oldValue != null) {
+
+            // if number is 1, add ( *number* ) to the end of the string
+            if (newValueNumber == 1) {
+                newValue = oldValue;
+                newValue += " (" + String.valueOf(newValueNumber) + ")";
+                return newValue;
+            }
+            // if it is not 0, find the second to last character and replace the number with
+            // the next one in the sequence.
+            else {
+
+                newValue = oldValue.substring(0, oldValue.length() - 4);
+                newValue += " (" + String.valueOf(newValueNumber) + ")";
+
+                return newValue;
+            }
+
+        }
+        else
+            // If we have a null string, return it as it is.
+            return null;
+
     }
 
     public ArrayList<ContentValues> getTableRows(SQLiteDatabase db, String[] selectedColumns,
@@ -131,8 +204,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         else
             selection = null;
 
-        Log.d("getTable where", whereValues.toString());
-
         // How you want the results sorted in the resulting Cursor
         if(sortBy != null)
             sortBy += " DESC";
@@ -151,8 +222,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         // Get the return values for all rows retrieved from the above query.
         // All of these are contained within the above Cursor.
         ArrayList<ContentValues> returnValues = new ArrayList<>();
-
-        Log.d("getTable cursSize", String.valueOf(c.getCount()));
 
         if( c != null && c.moveToFirst() ) {
 
@@ -178,13 +247,11 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
                 // Close the cursor and return the rows.
                 c.close();
-                Log.d("getTable values", returnValues.toString());
                 return returnValues;
             }
             else {
                 // Create and return an error HashMap
                 ContentValues returnHash = new ContentValues();
-                returnHash.put("error", "Column projection error in get_table_rows");
                 returnValues.add(returnHash);
                 c.close();
                 Log.d("getTableRows error", "No projection tags found.");
