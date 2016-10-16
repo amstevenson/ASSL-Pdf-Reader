@@ -1,5 +1,6 @@
 package com.example.adamst.asslpdfreader;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -18,7 +19,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 /*
-    TODO: T1 1) Floating button System/Nav import: implement an activity that lists all files from the device's file system.
+    TODO: T1 1) DONE
+        // Floating button System/Nav import: implement an activity that lists all files from the device's file system.
     TODO: T1 2) When a file is selected, check that the version is pdf or epub.
     TODO: T1 3) If this check passes, add the values of the file to the DB.
     TODO: T1 4) When the files DB values have been added, copy and save the file to the apps file folder.
@@ -29,6 +31,7 @@ import android.view.animation.AnimationUtils;
 
     TODO: T3 1) List all DB objects on the main activity using an adapter - look into alternatives.
 
+    TODO: Future 1) Back button for choose system file activity should go up a directory, not go back to main activity.
  */
 
 public class MainActivity extends AppCompatActivity
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                // Write action for storage
+                // Write action for Dropbox
             }
         });
 
@@ -94,10 +97,11 @@ public class MainActivity extends AppCompatActivity
                  Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                        .setAction("Action", null).show();
 
-                // Write action for Dropbox
+                // Write action for System storage
+                Intent intent = new Intent(view.getContext(), ChooseSystemFileActivity.class);
+                startActivity(intent);
             }
         });
-
     }
 
     @Override

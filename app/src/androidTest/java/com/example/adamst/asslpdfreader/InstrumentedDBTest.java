@@ -280,7 +280,7 @@ public class InstrumentedDBTest {
      * If a value already exists for a table row, a created method can be used to append a number
      * to the end of it, that makes it unique. For example, when a file is copied and pasted without
      * being renamed, it is automatically assigned a ( *number* ) value to the end. This test replicates
-     * that logic and checks if it works or not. 
+     * that logic and checks if it works or not.
      *
      */
     public void testDbAutoRenameValue() throws Exception {
