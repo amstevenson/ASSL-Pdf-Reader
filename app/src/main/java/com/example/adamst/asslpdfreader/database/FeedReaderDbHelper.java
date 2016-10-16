@@ -59,12 +59,32 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
+    /**
+     *
+     * Adds a new row to the DB table with the values specified
+     *
+     * @param db The database
+     * @param values The new rows values
+     * @param tableName The name of the table
+     * @return Returns the ID of the newly added row as a Long
+     * @throws Exception
+     */
     public Long addTableRow(SQLiteDatabase db, ContentValues values, String tableName) throws Exception {
 
         // Insert the new row; returns the new ID as a long value.
         return db.insert(tableName, null, values);
     }
 
+    /**
+     *
+     * Checks to see if a row already exists in the database with the values provided.
+     *
+     * @param db The database
+     * @param values The ContentValues object containing the keys and values to query the database with.
+     * @param tableName The name of the table
+     * @return Returns true if the row already exists, or false otherwise
+     * @throws Exception
+     */
     public boolean checkRowExists(SQLiteDatabase db, ContentValues values, String tableName) throws Exception{
 
         // Identify what the selected columns would be based on the value provided.
@@ -150,6 +170,18 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return newTagValue;
     }
 
+    /**
+     *
+     * Appends a number to the end of a string. This is performed in order to
+     * account for values in the database that would otherwise have the same name.
+     * Instead of refusing to add a new row because the value already exists, adding
+     * a number to the end replicates what's normally seen on OS's when a copy/paste occurs
+     * where there is a collision of file names.
+     *
+     * @param oldValue The string that will be appended to.
+     * @param newValueNumber The number to add on to the end of the string.
+     * @return The string with a number on the end of it. E.g "name" will be "name (1)"
+     */
     private String getAppendedNumberedValue(String oldValue, int newValueNumber) {
 
         String newValue;
@@ -180,6 +212,25 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     }
 
+    /**
+     *
+     * Gets all rows associated with all of the information provided.
+     * TODO: add an optional row for the sortBy DESC/ASC.
+     *
+     * @param db The database object.
+     * @param selectedColumns The columns tags which will be used to retrieve values from the
+     *                        rows that are retrieved from the database.
+     * @param whereValues The "where" arguments for the select query. This will be in the format of
+     *                    "TAG_NAME", "TAG_VALUE" without any sql specific syntax being provided;
+     *                    just purely tags and values.
+     * @param tableName The name of the database table being queried.
+     * @param sortBy The name of the column (as a tag) to be used for the sort portion of the sql
+     *               query.
+     * @return Returns an ArrayList of ContentValues that has one or more rows associated with it.
+     * The index of the ArrayList refers to the row, and the values can be accessed by providing
+     * the tag as the key with the relevant get methods.
+     * @throws Exception
+     */
     public ArrayList<ContentValues> getTableRows(SQLiteDatabase db, String[] selectedColumns,
                                       ContentValues whereValues, String tableName, String sortBy) throws Exception {
 
@@ -265,6 +316,19 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     *
+     * Updates a table row.
+     *
+     * @param db The database object
+     * @param columnName The name of the column that will be updated
+     * @param oldValue The "like" portion of the sql uses the old value in order to find the row
+     *                 that will be updated.
+     * @param newValue The new value for the specific row.
+     * @param tableName The name of the database table
+     * @return Returns true if updated, else false
+     * @throws Exception
+     */
     public Boolean updateTableRow(SQLiteDatabase db, String columnName, String oldValue, String newValue, String tableName) throws Exception{
 
         // New value for one column
@@ -284,6 +348,16 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return count != 0;
     }
 
+    /**
+     *
+     * A method used to remove one or more rows from the database that match specific conditions.
+     *
+     * @param db The database object
+     * @param columnName The name of the table column
+     * @param columnValue The value for the provided column
+     * @param tableName The database table
+     * @throws Exception
+     */
     public void removeTableRow(SQLiteDatabase db, String columnName, String columnValue, String tableName) throws Exception{
 
         // Define 'where' part of query.
