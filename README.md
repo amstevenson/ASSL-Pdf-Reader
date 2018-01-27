@@ -1,4 +1,2 @@
 # ASSL-Pdf-Reader
-Project Type: Android, Java
-
-Project Description: This will primarilly be a side project that will explore how to store and display books from a number of different sources (cloud services, android storage and possibly more). 
+A basic android template. You can use this to start building a project from. However make sure to check the versions to ensure that nothing needs to be updated. 
